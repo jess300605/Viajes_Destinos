@@ -294,6 +294,7 @@ fun CatalogScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(Color.White)
                 .padding(paddingValues)
         ) {
             // Search Bar & Filter Section
