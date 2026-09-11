@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -304,12 +305,13 @@ fun CatalogScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(Color.White)
                         .padding(horizontal = 16.dp, vertical = 10.dp)
                 ) {
                     OutlinedTextField(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
-                        placeholder = { Text(stringResource(R.string.search_placeholder)) },
+                        placeholder = { Text(stringResource(R.string.search_placeholder), color = BrandSecondaryText) },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Search,
@@ -322,16 +324,20 @@ fun CatalogScreen(
                                 IconButton(onClick = { searchQuery = "" }) {
                                     Icon(
                                         imageVector = Icons.Default.Clear,
-                                        contentDescription = null
+                                        contentDescription = null,
+                                        tint = BrandPrimaryText
                                     )
                                 }
                             }
                         },
                         singleLine = true,
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(color = BrandPrimaryText),
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = BrandPrimary,
-                            unfocusedBorderColor = BrandDivider
+                            unfocusedBorderColor = BrandDivider,
+                            focusedTextColor = BrandPrimaryText,
+                            unfocusedTextColor = BrandPrimaryText
                         ),
                         modifier = Modifier
                             .fillMaxWidth()

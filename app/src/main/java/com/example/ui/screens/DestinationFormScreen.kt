@@ -534,7 +534,10 @@ fun DestinationFormScreen(
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = BrandPrimary,
-                            focusedLabelColor = BrandPrimary
+                            focusedLabelColor = BrandPrimary,
+                            focusedTextColor = BrandPrimaryText,
+                            unfocusedTextColor = BrandPrimaryText,
+                            cursorColor = BrandPrimary
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -589,7 +592,10 @@ fun DestinationFormScreen(
                         ),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = BrandPrimary,
-                            focusedLabelColor = BrandPrimary
+                            focusedLabelColor = BrandPrimary,
+                            focusedTextColor = BrandPrimaryText,
+                            unfocusedTextColor = BrandPrimaryText,
+                            cursorColor = BrandPrimary
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -640,7 +646,10 @@ fun DestinationFormScreen(
                         maxLines = 6,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = BrandPrimary,
-                            focusedLabelColor = BrandPrimary
+                            focusedLabelColor = BrandPrimary,
+                            focusedTextColor = BrandPrimaryText,
+                            unfocusedTextColor = BrandPrimaryText,
+                            cursorColor = BrandPrimary
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
