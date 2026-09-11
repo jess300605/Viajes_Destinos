@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "917099972590",
+    "project_id": "travelapp-dc75f",
+    "storage_bucket": "travelapp-dc75f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:917099972590:android:0b744eaf4c0140ffa170ff",
+        "android_client_info": {
+          "package_name": "com.aistudio.travelagency.dtvz"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "917099972590-hp8edsnk1dvum93cqe2crf0vet2o8mq0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzN67CzDvcRi9LEEFu2x6c4qzd-3IW1L8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "917099972590-hp8edsnk1dvum93cqe2crf0vet2o8mq0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
