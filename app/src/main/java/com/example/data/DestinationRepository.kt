@@ -6,6 +6,10 @@ import android.net.Uri
 import com.example.R
 import com.example.model.Destination
 import com.google.firebase.FirebaseApp
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
@@ -31,7 +35,11 @@ class DestinationRepository(private val context: Context) {
     val isSyncing: StateFlow<Boolean> = _isSyncing.asStateFlow()
 
     private var firestore: FirebaseFirestore? = null
+    private var database: FirebaseDatabase? = null
     private var snapshotListener: ListenerRegistration? = null
+    private var rtdbListener: ValueEventListener? = null
+
+    private val rtdbUrl = "https://travelapp-dc75f-default-rtdb.firebaseio.com"
 
     init {
         // First load from local cache or seed samples
@@ -46,10 +54,42 @@ class DestinationRepository(private val context: Context) {
             if (FirebaseApp.getApps(context).isNotEmpty()) {
                 firestore = FirebaseFirestore.getInstance()
                 listenToFirestore()
+
+                // Inicializar Realtime Database
+                database = FirebaseDatabase.getInstance(rtdbUrl)
+                listenToRealtimeDatabase()
             }
         } catch (e: Exception) {
             firestore = null
+            database = null
         }
+    }
+
+    private fun listenToRealtimeDatabase() {
+        val db = database ?: return
+        val ref = db.getReference("destinations")
+        
+        rtdbListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val list = mutableListOf<Destination>()
+                for (child in snapshot.children) {
+                    val data = child.value as? Map<String, Any>
+                    if (data != null) {
+                        Destination.fromMap(child.key ?: "", data)?.let { list.add(it) }
+                    }
+                }
+                
+                if (list.isNotEmpty()) {
+                    _destinations.value = list.sortedByDescending { it.createdAt }
+                    saveToCache(_destinations.value)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                android.util.Log.e("RTDB", "Error: ${error.message}")
+            }
+        }
+        ref.addValueEventListener(rtdbListener!!)
     }
 
     private fun listenToFirestore() {
@@ -189,17 +229,17 @@ class DestinationRepository(private val context: Context) {
             saveToCache(updated)
 
             // Sync with Firestore if available
-            val db = firestore
-            if (db != null) {
-                try {
-                    db.collection("destinations")
-                        .document(destination.id)
-                        .set(destination.toMap())
-                        .await()
-                } catch (e: Exception) {
-                    // Log or handle remote sync error
-                }
-            }
+            firestore?.collection("destinations")
+                ?.document(destination.id)
+                ?.set(destination.toMap())
+                ?.await()
+
+            // Sync with Realtime Database
+            database?.getReference("destinations")
+                ?.child(destination.id)
+                ?.setValue(destination.toMap())
+                ?.await()
+
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -218,18 +258,18 @@ class DestinationRepository(private val context: Context) {
             _destinations.value = updated
             saveToCache(updated)
 
-            // Sync with Firestore if available
-            val db = firestore
-            if (db != null) {
-                try {
-                    db.collection("destinations")
-                        .document(destination.id)
-                        .set(destination.toMap(), SetOptions.merge())
-                        .await()
-                } catch (e: Exception) {
-                    // Remote sync error
-                }
-            }
+            // Sync with Firestore
+            firestore?.collection("destinations")
+                ?.document(destination.id)
+                ?.set(destination.toMap(), SetOptions.merge())
+                ?.await()
+
+            // Sync with Realtime Database
+            database?.getReference("destinations")
+                ?.child(destination.id)
+                ?.updateChildren(destination.toMap())
+                ?.await()
+
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -247,17 +287,17 @@ class DestinationRepository(private val context: Context) {
             saveToCache(updated)
 
             // Delete in Firestore
-            val db = firestore
-            if (db != null) {
-                try {
-                    db.collection("destinations")
-                        .document(destinationId)
-                        .delete()
-                        .await()
-                } catch (e: Exception) {
-                    // Remote sync error
-                }
-            }
+            firestore?.collection("destinations")
+                ?.document(destinationId)
+                ?.delete()
+                ?.await()
+
+            // Delete in Realtime Database
+            database?.getReference("destinations")
+                ?.child(destinationId)
+                ?.removeValue()
+                ?.await()
+
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
