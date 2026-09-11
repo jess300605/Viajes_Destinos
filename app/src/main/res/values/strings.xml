@@ -14,13 +14,13 @@
     <string name="confirm_password_placeholder">Repite tu contraseña</string>
     <string name="btn_login">Ingresar al Sistema</string>
     <string name="btn_register">Registrar Agente</string>
-    <string name="btn_guest_demo">Entrar en Modo Rápido / Demo</string>
     <string name="toggle_to_register">¿No tienes cuenta? Regístrate aquí</string>
     <string name="toggle_to_login">¿Ya tienes cuenta? Inicia sesión aquí</string>
     <string name="agent_session_active">Agente Activo:</string>
     <string name="logout">Cerrar Sesión</string>
     <string name="logout_confirm_title">¿Cerrar sesión?</string>
     <string name="logout_confirm_message">¿Deseas salir del sistema de gestión de destinos?</string>
+    <string name="default_web_client_id" translatable="false">917099972590-hp8edsnk1dvum93cqe2crf0vet2o8mq0.apps.googleusercontent.com</string>
     <string name="btn_cancel">Cancelar</string>
     <string name="btn_confirm">Aceptar</string>
 

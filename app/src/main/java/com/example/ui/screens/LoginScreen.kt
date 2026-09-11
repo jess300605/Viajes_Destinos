@@ -22,6 +22,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.FlightTakeoff
 import androidx.compose.material.icons.filled.Lock
@@ -34,6 +35,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -55,6 +57,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -69,7 +72,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
 import com.example.data.AuthRepository
-import com.example.ui.theme.BrandAccent
 import com.example.ui.theme.BrandDarkPrimary
 import com.example.ui.theme.BrandLightPrimary
 import com.example.ui.theme.BrandPrimary
@@ -96,6 +98,7 @@ fun LoginScreen(
 
     val coroutineScope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
+    val context = LocalContext.current
 
     val emptyEmailMsg = stringResource(R.string.error_empty_email)
     val invalidEmailMsg = stringResource(R.string.error_invalid_email)
@@ -160,6 +163,27 @@ fun LoginScreen(
                 }
             } catch (e: Exception) {
                 generalError = e.localizedMessage ?: "Ocurrió un error inesperado."
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    fun executeGoogleAuth() {
+        keyboardController?.hide()
+        isLoading = true
+        generalError = null
+        coroutineScope.launch {
+            try {
+                val result = authRepository.signInWithGoogle(context)
+                if (result.isSuccess) {
+                    onLoginSuccess()
+                } else {
+                    generalError = result.exceptionOrNull()?.localizedMessage
+                        ?: "Error al iniciar sesión con Google."
+                }
+            } catch (e: Exception) {
+                generalError = e.localizedMessage ?: "Ocurrió un error con Google."
             } finally {
                 isLoading = false
             }
@@ -442,6 +466,51 @@ fun LoginScreen(
                         }
                     }
 
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        HorizontalDivider(modifier = Modifier.weight(1f), color = Color.LightGray)
+                        Text(
+                            text = " O ",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = BrandSecondaryText,
+                            modifier = Modifier.padding(horizontal = 8.dp)
+                        )
+                        HorizontalDivider(modifier = Modifier.weight(1f), color = Color.LightGray)
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Google Login Button
+                    OutlinedButton(
+                        onClick = { executeGoogleAuth() },
+                        enabled = !isLoading,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp)
+                            .testTag("google_login_button"),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = BrandDarkPrimary
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AccountCircle,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = Color.Unspecified // Intentamos usar colores nativos si fuera el logo
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Continuar con Google",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(12.dp))
 
                     // Toggle Register / Login
@@ -464,29 +533,6 @@ fun LoginScreen(
                         )
                     }
                 }
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Quick Demo Access Button (Convenient for quick evaluator testing)
-            OutlinedButton(
-                onClick = {
-                    authRepository.loginDemo()
-                    onLoginSuccess()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-                    .testTag("login_demo_button"),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = BrandAccent
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.btn_guest_demo),
-                    fontWeight = FontWeight.SemiBold
-                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))

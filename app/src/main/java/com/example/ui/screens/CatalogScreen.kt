@@ -1,10 +1,5 @@
 package com.example.ui.screens
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -29,12 +22,9 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FlightTakeoff
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -62,23 +52,22 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.zIndex
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.R
 import com.example.data.AuthRepository
 import com.example.data.DestinationRepository
 import com.example.model.Destination
+import com.example.ui.adapter.DestinationAdapter
 import com.example.ui.theme.BrandAccent
 import com.example.ui.theme.BrandDarkPrimary
 import com.example.ui.theme.BrandDivider
@@ -87,7 +76,6 @@ import com.example.ui.theme.BrandPrimary
 import com.example.ui.theme.BrandPrimaryText
 import com.example.ui.theme.BrandSecondaryText
 import kotlinx.coroutines.launch
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -310,7 +298,8 @@ fun CatalogScreen(
             // Search Bar & Filter Section
             Surface(
                 color = Color.White,
-                shadowElevation = 2.dp
+                shadowElevation = 2.dp,
+                modifier = Modifier.zIndex(2f)
             ) {
                 Column(
                     modifier = Modifier
@@ -386,7 +375,8 @@ fun CatalogScreen(
                 }
             }
 
-            // Destinations List (RecyclerView with CardView pattern)
+
+            // Destinations List — RecyclerView real con CardView (item_destination.xml)
             if (filteredDestinations.isEmpty()) {
                 Box(
                     modifier = Modifier
@@ -421,206 +411,44 @@ fun CatalogScreen(
                     }
                 }
             } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .testTag("destinations_recycler_view"),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    item {
-                        Text(
-                            text = stringResource(R.string.total_destinations_count, filteredDestinations.size),
-                            style = MaterialTheme.typography.labelLarge.copy(
-                                color = BrandSecondaryText,
-                                fontWeight = FontWeight.SemiBold
-                            ),
-                            modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
-                        )
-                    }
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Text(
+                        text = stringResource(R.string.total_destinations_count, filteredDestinations.size),
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            color = BrandSecondaryText,
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        modifier = Modifier.padding(start = 20.dp, top = 12.dp, bottom = 4.dp)
+                    )
 
-                    items(
-                        items = filteredDestinations,
-                        key = { it.id }
-                    ) { destination ->
-                        DestinationCardItem(
-                            destination = destination,
-                            onEdit = { onEditClick(destination.id) },
-                            onDelete = { destinationToDelete = destination }
-                        )
-                    }
+                    // Puente Compose -> Vistas clásicas: RecyclerView + CardView + Glide
+                    AndroidView(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clipToBounds()
+                            .zIndex(1f)
+                            .testTag("destinations_recycler_view"),
+                        factory = { context ->
+                            RecyclerView(context).apply {
+                                layoutManager = LinearLayoutManager(context)
+                                setPadding(0, 8.dpToPx(context), 0, 24.dpToPx(context))
+                                clipToPadding = false
+                                adapter = DestinationAdapter(
+                                    onEditClick = { destination -> onEditClick(destination.id) },
+                                    onDeleteClick = { destination -> destinationToDelete = destination }
+                                )
+                            }
+                        },
+                        update = { recyclerView ->
+                            (recyclerView.adapter as? DestinationAdapter)?.submitList(filteredDestinations)
+                        }
+                    )
                 }
             }
         }
     }
 }
 
-@Composable
-fun DestinationCardItem(
-    destination: Destination,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit
-) {
-    val context = LocalContext.current
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .testTag("destination_card_${destination.id}"),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            // Destination Image (Coil Image Loading)
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(190.dp)
-            ) {
-                AsyncImage(
-                    model = ImageRequest.Builder(context)
-                        .data(destination.imageUri.ifEmpty { R.drawable.travel_cancun })
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = destination.name,
-                    contentScale = ContentScale.Crop,
-                    placeholder = painterResource(R.drawable.travel_cancun),
-                    error = painterResource(R.drawable.travel_cancun),
-                    modifier = Modifier.fillMaxSize()
-                )
-
-                // Country Badge
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = BrandDarkPrimary.copy(alpha = 0.9f),
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .align(Alignment.TopStart)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(14.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = destination.country,
-                            color = Color.White,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
-                // Price Tag Badge (Accent Color #8BC34A)
-                Surface(
-                    shape = RoundedCornerShape(bottomStart = 16.dp),
-                    color = BrandAccent,
-                    modifier = Modifier.align(Alignment.TopEnd)
-                ) {
-                    Text(
-                        text = String.format(Locale.US, "$%.2f USD", destination.price),
-                        color = Color.White,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
-                    )
-                }
-            }
-
-            // Card Body Information
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                // Name
-                Text(
-                    text = destination.name,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = BrandPrimaryText
-                    ),
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Spacer(modifier = Modifier.height(6.dp))
-
-                // Description
-                Text(
-                    text = destination.description,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = BrandSecondaryText,
-                        lineHeight = 20.sp
-                    ),
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                // Divider
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(1.dp)
-                        .background(BrandDivider.copy(alpha = 0.5f))
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                // Action Buttons: Edit & Delete
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TextButton(
-                        onClick = onEdit,
-                        modifier = Modifier.testTag("edit_destination_btn_${destination.id}")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = stringResource(R.string.btn_edit),
-                            tint = BrandDarkPrimary,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = stringResource(R.string.btn_edit),
-                            color = BrandDarkPrimary,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    TextButton(
-                        onClick = onDelete,
-                        modifier = Modifier.testTag("delete_destination_btn_${destination.id}")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = stringResource(R.string.btn_delete),
-                            tint = Color(0xFFD32F2F),
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = stringResource(R.string.btn_delete),
-                            color = Color(0xFFD32F2F),
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                }
-            }
-        }
-    }
+private fun Int.dpToPx(context: android.content.Context): Int {
+    return (this * context.resources.displayMetrics.density).toInt()
 }
