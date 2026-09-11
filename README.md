@@ -62,33 +62,13 @@ Todos los textos de la interfaz gráfica están completamente centralizados en `
    - Modificación de cualquier campo del paquete turístico, incluyendo la actualización o cambio de la imagen.
 4. **Delete (Eliminación con Confirmación Previa):**
    - Borrado de destinos con diálogo de confirmación emergente que previene eliminaciones accidentales.
-
----
-
-## 📜 Historial Sugerido de Commits (Mínimo 10 con verbos)
-
-Para cumplir con el requerimiento de mínimo 10 commits con verbos válidos (en español o inglés):
-
-1. `implement`: implementar estructura base del proyecto Android y configuración de dependencias
-2. `add`: agregar paleta de colores requerida y recursos en strings.xml
-3. `add`: agregar modelo de datos Destination y helper de almacenamiento multimedia local
-4. `implement`: implementar repositorio con sincronización Firebase Firestore y Auth
-5. `add`: agregar componente Spinner de países para selección en formularios
-6. `implement`: implementar pantalla de Login y Registro con validaciones en pantalla
-7. `implement`: implementar pantalla de Catálogo con RecyclerView, CardView y filtros
-8. `implement`: implementar formulario de registro y edición con validaciones obligatorias
-9. `add`: agregar diálogo de confirmación previa para eliminación de destinos
-10. `update`: actualizar icono adaptativo personalizado de la aplicación
-11. `test`: probar modelos de datos y pruebas unitarias con Robolectric
-12. `docs`: documentar proyecto y guía de entrega en README.md
-
 ---
 
 ## 🚀 Instrucciones de Compilación y Ejecución
 
 1. Clonar el repositorio:
    ```bash
-   git clone https://github.com/jess300605/TravelApp)
+   git clone https://github.com/jess300605/Viajes_Destinos
    ```
 2. Abrir el proyecto en **Android Studio**.
 3. (Opcional para Firebase): Descargar `google-services.json` desde Firebase Console y colocarlo en el directorio `/app`. Si no se incluye, la aplicación funciona de forma automática en modo local garantizando que no se interrumpa la evaluación.
