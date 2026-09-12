@@ -1,83 +1,69 @@
 # Viajes Destinos - Gestión de Destinos Turísticos ✈️🌴
 
-Aplicación móvil desarrollada en **Android Studio** con **Kotlin** y **Jetpack Compose** para una Agencia de Viajes. Permite gestionar un catálogo de destinos turísticos con sistema de autenticación seguro, validaciones obligatorias, almacenamiento multimedia y un CRUD completo integrado con servicios de **Firebase (Auth & Firestore)** y persistencia local offline.
+Aplicación móvil profesional desarrollada en **Android Studio** con **Kotlin** y **Jetpack Compose** para una Agencia de Viajes. Esta plataforma permite una gestión integral de paquetes turísticos, ofreciendo una experiencia de usuario premium con sincronización híbrida en la nube y diseño moderno.
 
 ---
 
 ## 📋 Datos de la Entrega
 
 - **Nombre del Alumno:** Jesus Ernesto Sanabria Sibrian
-- **Enlace del Video de Defensa:** Google Drive)*
-- **APK Funcional:** Generada en `app/build/outputs/apk/debug/app-debug.apk` (o mediante el menú de exportación de AI Studio).
+- **Estado del Proyecto:** Completamente funcional con integración Firebase y UI Rediseñada.
+- **APK Funcional:** Generada en `app/build/outputs/apk/debug/app-debug.apk`.
 
 ---
 
-## 🎨 Paleta de Colores y Temas Implementados
+## 🎨 Diseño y UI Profesional (Actualizado)
 
-La aplicación implementa fielmente los colores requeridos:
-- **Dark Primary Color:** `#0097A7` (Barras superiores y acentos oscuros)
-- **Light Primary Color:** `#B2EBF2` (Fondos claros, contenedores y chips de filtro)
-- **Primary Color:** `#00BCD4` (Botones principales, íconos y encabezados)
-- **Text / Icons:** `#FFFFFF` (Texto de botones, íconos y contrastes)
-- **Accent Color:** `#8BC34A` (Badges de precio, FAB de agregar y estados activos)
-- **Primary Text:** `#212121` (Títulos y texto principal de alta legibilidad)
-- **Secondary Text:** `#757575` (Subtítulos, contadores y descripciones)
-- **Divider Color:** `#BDBDBD` (Divisores de tarjetas y bordes)
-
-Todos los textos de la interfaz gráfica están completamente centralizados en `app/src/main/res/values/strings.xml`.
+La aplicación ha sido rediseñada para ofrecer un aspecto limpio y corporativo:
+- **Fondo Premium:** Fondos en blanco puro y gris ultra-claro para mayor claridad visual.
+- **Tipografía de Alta Visibilidad:** Texto principal en **Negro Puro (`#000000`)** y secundario en gris oscuro (`#333333`), eliminando problemas de legibilidad.
+- **Iconografía Oficial:** Logo personalizado configurado como icono de la aplicación (Adaptive Icon) y presente en toda la interfaz.
+- **Colores de Marca:**
+    - **Dark Primary:** `#0097A7`
+    - **Primary:** `#00BCD4`
+    - **Accent:** `#8BC34A` (Badges de precio y botones de acción)
 
 ---
 
-## ✅ Cumplimiento de Requerimientos
+## ✅ Características Principales y Tecnologías
 
-### 1. Autenticación (Firebase Auth & Modo Demo)
-- Login y Registro de usuarios con Firebase Auth (`com.google.firebase:firebase-auth`).
-- Validación de formato de correo electrónico y contraseña mínima de 6 caracteres.
-- Muestra de advertencias y errores en tiempo real en la pantalla.
-- Modo Rápido / Demo disponible para pruebas inmediatas en emuladores sin credenciales configuradas.
+### 1. Sistema de Autenticación Multimodal
+- **Firebase Auth:** Registro e inicio de sesión con correo y contraseña.
+- **Google Sign-In:** Integración con **Credential Manager API** para un acceso rápido con cuentas de Google.
+- **Validaciones:** Control estricto de formatos de email y seguridad de contraseñas.
 
-### 2. Base de Datos (Firebase Firestore & Sincronización Local)
-- Conexión a Firebase Firestore (`destinations`) con listener en tiempo real.
-- Sincronización con almacenamiento local para garantizar funcionamiento offline y disponibilidad continua.
+### 2. Sincronización Híbrida de Datos
+- **Cloud Firestore:** Almacenamiento de documentos para el catálogo de destinos.
+- **Realtime Database:** Sincronización instantánea de alta velocidad para actualizaciones en tiempo real.
+- **Persistencia Local:** Caché inteligente mediante `SharedPreferences` y almacenamiento interno para funcionamiento offline garantizado.
 
-### 3. Almacenamiento Multimedia (Storage Local)
-- Selector de imágenes desde la galería del dispositivo mediante Android Photo Picker (`ActivityResultContracts.PickVisualMedia()`).
-- Almacenamiento durable en el directorio interno de la aplicación (`context.filesDir/destinations_media/`), garantizando persistencia segura y sin necesidad de permisos invasivos.
-- Opciones de fotografías sugeridas integradas para facilitar pruebas directas.
+### 3. Gestión de Catálogo (CRUD Avanzado)
+- **Creación:** Formulario con validaciones en tiempo vivo, selector de países expandido (toda América) y carga de imágenes.
+- **Lectura:** Lista optimizada con filtros dinámicos por país y barra de búsqueda predictiva.
+- **Actualización:** Edición completa de paquetes existentes con sincronización inmediata a la nube.
+- **Eliminación:** Sistema seguro con diálogos de confirmación.
 
-### 4. Carga de Imágenes
-- Implementación de **Coil** (`AsyncImage`) para renderizado eficiente, transiciones suaves de crossfade y manejo de estados de carga y error.
+### 4. Multimedia y Rendimiento
+- **Android Photo Picker:** Selección moderna y segura de imágenes de la galería.
+- **Coil:** Procesamiento y carga eficiente de imágenes con manejo de caché y estados de error.
+- **Arquitectura Limpia:** Repositorios centralizados para una gestión de datos escalable.
 
-### 5. CRUD Completo y Validaciones Obligatorias
-1. **Create (Registro de Destinos):**
-   - Nombre del destino (no vacío).
-   - País mediante **Spinner** (`ExposedDropdownMenuBox` con selección de países).
-   - Precio del paquete con formato numérico estricto y **obligatoriamente mayor a 0**.
-   - Descripción del viaje con validación de **mínimo 20 caracteres** y contador en vivo.
-   - Fotografía obligatoria asociada para poder guardar.
-2. **Read (Catálogo Turístico):**
-   - Lista fluida (`LazyColumn`) con tarjetas estilo `CardView` que muestran fotografía, nombre, precio destacado, país y descripción.
-   - Barra de búsqueda y filtros rápidos por país.
-3. **Update (Edición):**
-   - Modificación de cualquier campo del paquete turístico, incluyendo la actualización o cambio de la imagen.
-4. **Delete (Eliminación con Confirmación Previa):**
-   - Borrado de destinos con diálogo de confirmación emergente que previene eliminaciones accidentales.
 ---
 
-## 🚀 Instrucciones de Compilación y Ejecución
+## 🚀 Instrucciones de Configuración
 
-1. Clonar el repositorio:
+1. **Clonar el proyecto:**
    ```bash
    git clone https://github.com/jess300605/Viajes_Destinos
    ```
-2. Abrir el proyecto en **Android Studio**.
-3. (Opcional para Firebase): Descargar `google-services.json` desde Firebase Console y colocarlo en el directorio `/app`. Si no se incluye, la aplicación funciona de forma automática en modo local garantizando que no se interrumpa la evaluación.
-4. Compilar el APK de prueba:
+2. **Configuración de Firebase:**
+    - Colocar el archivo `google-services.json` en la carpeta `/app`.
+    - Configurar el `default_web_client_id` en `strings.xml` para habilitar el Login de Google.
+3. **Compilación:**
    ```bash
    ./gradlew assembleDebug
    ```
-   o
-   ```bash
-   ./gradlew assembleRelease
-   ```
-5. Ejecutar en un dispositivo físico o emulador con Android 7.0 (API 24) o superior.
+4. **Requisitos:** Android 7.0 (API 24) o superior.
+
+---
+*Desarrollado con ❤️ para la gestión turística moderna.*
